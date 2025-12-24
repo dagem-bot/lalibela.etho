@@ -1,0 +1,1930 @@
+!DOCTYPE html>
+<html lang="am">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ላሊበላ - የተፈጥሮ ድንጋይ ቅርፃቅርፅ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            background-color: #1a0f0a;
+        }
+        
+        /* ላሊበላ ምስል የጀርባ ገጽታ */
+        .lalibela-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1585506936724-cb6d56b535de?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            /* ለሞባይል: ያነሰ blur, ለዴስክቶፕ: የተሻለ blur */
+            filter: blur(4px);
+            transform: scale(1.05);
+        }
+        
+        /* ፊትለፊት የሚታየው ንጹህ ምስል */
+        .foreground-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            height: 75vh;
+            z-index: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+            border: 3px solid rgba(193, 154, 107, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        
+        .foreground-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .foreground-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .foreground-text h2 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: #e6c28c;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+        }
+        
+        .foreground-text p {
+            font-size: 1.4rem;
+            color: #f0e6d8;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+        }
+        
+        /* ማዕከላዊ አደራደር */
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Sidebar ክፍል - ለዴስክቶፕ የተሻለ */
+        .sidebar {
+            width: 320px;
+            background-color: rgba(44, 24, 16, 0.98);
+            color: #f0e6d8;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 5px 0 20px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border-right: 2px solid rgba(193, 154, 107, 0.3);
+        }
+        
+        .sidebar.active {
+            transform: translateX(0);
+        }
+        
+        /* የመገናኛ አዶዎች ክፍል */
+        .sidebar-contact {
+            display: flex;
+            justify-content: space-around;
+            padding: 1.2rem 1.5rem;
+            background-color: rgba(31, 17, 10, 0.95);
+            border-bottom: 1px solid #8b5a2b;
+        }
+        
+        .contact-icon {
+            background-color: rgba(58, 36, 24, 0.8);
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #e6c28c;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        
+        .contact-icon:hover {
+            background-color: #c19a6b;
+            color: #2c1810;
+            transform: translateY(-5px) scale(1.1);
+            border-color: #e6c28c;
+        }
+        
+        .contact-phone {
+            background-color: rgba(46, 125, 50, 0.3);
+            border-color: rgba(46, 125, 50, 0.5);
+        }
+        
+        .contact-message {
+            background-color: rgba(21, 101, 192, 0.3);
+            border-color: rgba(21, 101, 192, 0.5);
+        }
+        
+        .contact-telegram {
+            background-color: rgba(0, 136, 204, 0.3);
+            border-color: rgba(0, 136, 204, 0.5);
+        }
+        
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(58, 36, 24, 0.8), transparent);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 2.2rem;
+            color: #e6c28c;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(230, 194, 140, 0.3);
+        }
+        
+        .sidebar-header p {
+            font-size: 1rem;
+            color: #d4c2a8;
+            font-style: italic;
+        }
+        
+        .sidebar-menu {
+            padding: 1.5rem 0;
+        }
+        
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 0.8rem;
+            padding: 0 1.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: #f0e6d8;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 5px solid transparent;
+            background-color: rgba(58, 36, 24, 0.5);
+            border-radius: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .sidebar-menu a:hover, 
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, rgba(193, 154, 107, 0.8), rgba(139, 90, 43, 0.6));
+            border-left: 5px solid #e6c28c;
+            color: #2c1810;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 1rem;
+            width: 25px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+        
+        .sidebar-info {
+            padding: 1.5rem;
+            background-color: rgba(58, 36, 24, 0.7);
+            margin: 1.5rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            border: 1px solid #8b5a2b;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+        }
+        
+        .sidebar-info h3 {
+            color: #e6c28c;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-info h3 i {
+            font-size: 1.1rem;
+        }
+        
+        /* የማያየት አዝራር ለ sidebar - ለሁለቱም መሣሪያዎች ተስማሚ */
+        .sidebar-toggle {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            background-color: rgba(44, 24, 16, 0.95);
+            color: #e6c28c;
+            border: 2px solid rgba(193, 154, 107, 0.4);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 999;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-toggle:hover {
+            background-color: rgba(193, 154, 107, 0.9);
+            color: #2c1810;
+            transform: scale(1.05);
+            border-color: #e6c28c;
+        }
+        
+        .sidebar-toggle i {
+            transition: transform 0.3s;
+        }
+        
+        .sidebar.active ~ .sidebar-toggle i {
+            transform: rotate(90deg);
+        }
+        
+        /* ዋና ይዘት ክፍል */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        .main-content.sidebar-open {
+            margin-left: 320px;
+            width: calc(100% - 320px);
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* የመገናኛ አዶዎች በገጹ ላይ */
+        .contact-icons-fixed {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            z-index: 997;
+        }
+        
+        .fixed-contact-icon {
+            background-color: rgba(44, 24, 16, 0.95);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            color: #e6c28c;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(193, 154, 107, 0.3);
+            position: relative;
+        }
+        
+        .fixed-contact-icon:hover {
+            transform: scale(1.15);
+            border-color: #e6c28c;
+        }
+        
+        .fixed-contact-icon::after {
+            content: attr(title);
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(44, 24, 16, 0.95);
+            color: #e6c28c;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            border: 1px solid rgba(193, 154, 107, 0.3);
+        }
+        
+        .fixed-contact-icon:hover::after {
+            opacity: 1;
+        }
+        
+        .fixed-phone {
+            background-color: rgba(46, 125, 50, 0.3);
+        }
+        
+        .fixed-message {
+            background-color: rgba(21, 101, 192, 0.3);
+        }
+        
+        .fixed-telegram {
+            background-color: rgba(0, 136, 204, 0.3);
+        }
+        
+        /* አማካኝ ክፍል */
+        .header {
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 75vh;
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 2px solid rgba(193, 154, 107, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+        }
+        
+        .title-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+            color: #e6c28c;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: #c19a6b;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+        
+        .description {
+            font-size: 1.4rem;
+            max-width: 900px;
+            margin: 0 auto 2rem;
+            line-height: 1.9;
+            color: #f0e6d8;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .photo-counter {
+            background-color: rgba(193, 154, 107, 0.9);
+            color: #2c1810;
+            padding: 1.2rem 2.5rem;
+            border-radius: 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #e6c28c;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* ይዘት ክፍሎች */
+        .content-section {
+            background-color: rgba(245, 242, 235, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(139, 90, 43, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 2.5rem;
+            color: #5a3921;
+            position: relative;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+        
+        .section-title::after {
+            content: "";
+            display: block;
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+            margin: 0.8rem auto;
+            border-radius: 2px;
+        }
+        
+        /* ግሌሪ ክፍል */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 300px;
+            cursor: pointer;
+            border: 2px solid rgba(139, 90, 43, 0.3);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: #c19a6b;
+        }
+        
+        .gallery-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        
+        .gallery-item:hover .gallery-img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
+            color: white;
+            padding: 1.5rem;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .gallery-item:hover .gallery-caption {
+            transform: translateY(0);
+        }
+        
+        .gallery-caption h3 {
+            font-size: 1.4rem;
+            color: #e6c28c;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* ላይትቦክስ */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.97);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .lightbox.active {
+            display: flex;
+        }
+        
+        .lightbox-img {
+            max-width: 90%;
+            max-height: 85%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            border: 3px solid rgba(193, 154, 107, 0.5);
+            animation: zoomIn 0.4s ease;
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 2.5rem;
+            right: 3.5rem;
+            font-size: 3rem;
+            color: #e6c28c;
+            cursor: pointer;
+            transition: color 0.3s;
+            background: rgba(44, 24, 16, 0.8);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(193, 154, 107, 0.5);
+        }
+        
+        .lightbox-close:hover {
+            color: #fff;
+            background: rgba(193, 154, 107, 0.8);
+            transform: rotate(90deg);
+        }
+        
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            color: #e6c28c;
+            cursor: pointer;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            background: rgba(44, 24, 16, 0.8);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(193, 154, 107, 0.5);
+        }
+        
+        .lightbox-nav:hover {
+            color: #fff;
+            background: rgba(193, 154, 107, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .lightbox-prev {
+            left: 3rem;
+        }
+        
+        .lightbox-next {
+            right: 3rem;
+        }
+        
+        .counter {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #e6c28c;
+            font-size: 1.4rem;
+            background: rgba(44, 24, 16, 0.8);
+            padding: 1rem;
+            border-top: 2px solid rgba(193, 154, 107, 0.5);
+        }
+        
+        /* ስለ ላሊበላ ክፍል */
+        .about-section {
+            background-color: rgba(235, 225, 210, 0.95);
+            padding: 4rem 2rem;
+            margin: 3rem 0;
+            border-radius: 20px;
+            border: 2px solid rgba(139, 90, 43, 0.3);
+        }
+        
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.3rem;
+            line-height: 1.9;
+            color: #3a2c1e;
+        }
+        
+        .about-content p {
+            margin-bottom: 1.5rem;
+        }
+        
+        /* ግርጌ ክፍል */
+        .footer {
+            background-color: rgba(44, 24, 16, 0.98);
+            color: #f0e6d8;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+            margin-top: 4rem;
+            border: 2px solid rgba(139, 90, 43, 0.5);
+            backdrop-filter: blur(15px);
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+        }
+        
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .footer h3 {
+            color: #e6c28c;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2.5rem 0;
+        }
+        
+        .social-icons a {
+            color: #e6c28c;
+            font-size: 2.2rem;
+            transition: all 0.3s;
+            background: rgba(58, 36, 24, 0.8);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(193, 154, 107, 0.5);
+        }
+        
+        .social-icons a:hover {
+            color: #2c1810;
+            background: #c19a6b;
+            transform: translateY(-5px);
+            border-color: #e6c28c;
+        }
+        
+        .copyright {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #8b5a2b;
+            font-size: 1rem;
+            color: #d4c2a8;
+        }
+        
+        /* የላሊበላ ስራዎች ክፍል */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3.5rem;
+        }
+        
+        .feature-card {
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s ease;
+            border: 2px solid rgba(139, 90, 43, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #e6c28c, #c19a6b, #8b5a2b);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3.5rem;
+            color: #c19a6b;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            color: #5a3921;
+            margin-bottom: 1.2rem;
+            font-size: 1.6rem;
+        }
+        
+        .feature-card p {
+            color: #3a2c1e;
+            line-height: 1.7;
+        }
+        
+        /* በፊትለፊት ምስል ላይ የሚታየው ጽሑፍ */
+        .intro-overlay {
+            position: absolute;
+            top: 15%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            z-index: 2;
+            padding: 0 2rem;
+            animation: slideInDown 1s ease;
+        }
+        
+        @keyframes slideInDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .intro-overlay h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.9);
+            color: #e6c28c;
+        }
+        
+        .intro-overlay .subtitle {
+            font-size: 2.2rem;
+            color: #c19a6b;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+            font-weight: bold;
+        }
+        
+        /* ምስል አሰባሰብ መቆጣጠሪያ - ለዴስክቶፕ ብቻ */
+        .photo-controls {
+            position: fixed;
+            bottom: 15rem;
+            right: 2.5rem;
+            z-index: 996;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .photo-control {
+            background-color: rgba(44, 24, 16, 0.95);
+            color: #e6c28c;
+            border: 2px solid rgba(193, 154, 107, 0.4);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            font-weight: bold;
+        }
+        
+        .photo-control:hover {
+            background-color: rgba(193, 154, 107, 0.9);
+            color: #2c1810;
+            transform: translateX(-5px);
+        }
+        
+        /* =========================================== */
+        /* ለሞባይል መሣሪያዎች ልዩ ዲዛይን */
+        /* =========================================== */
+        @media (max-width: 1200px) {
+            .foreground-image {
+                width: 85%;
+                height: 65vh;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 4rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 2rem;
+            }
+            
+            h1 {
+                font-size: 3.2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .foreground-image {
+                width: 90%;
+                height: 60vh;
+            }
+            
+            .foreground-text h2 {
+                font-size: 2.5rem;
+            }
+            
+            .foreground-text p {
+                font-size: 1.3rem;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 3.5rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 1.8rem;
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            .sidebar {
+                width: 300px;
+            }
+            
+            .main-content.sidebar-open {
+                margin-left: 300px;
+                width: calc(100% - 300px);
+            }
+            
+            .photo-controls {
+                display: none; /* ለታብሌት አይታይም */
+            }
+        }
+        
+        /* ለታብሌት እና ትንሽ ዴስክቶፕ */
+        @media (max-width: 768px) {
+            .lalibela-background {
+                filter: blur(3px); /* ለሞባይል ያነሰ blur */
+            }
+            
+            .foreground-image {
+                width: 95%;
+                height: 50vh;
+                border-radius: 15px;
+            }
+            
+            .foreground-text {
+                padding: 1.5rem;
+            }
+            
+            .foreground-text h2 {
+                font-size: 2rem;
+            }
+            
+            .foreground-text p {
+                font-size: 1.1rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.5rem;
+            }
+            
+            .description {
+                font-size: 1.2rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
+            }
+            
+            .gallery-item {
+                height: 250px;
+            }
+            
+            .lightbox-nav {
+                font-size: 2.5rem;
+                width: 60px;
+                height: 60px;
+                padding: 1rem;
+            }
+            
+            .lightbox-close {
+                top: 1.5rem;
+                right: 2rem;
+                font-size: 2.5rem;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .main-content.sidebar-open {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            .contact-icons-fixed {
+                bottom: 1.5rem;
+                right: 1.5rem;
+            }
+            
+            .fixed-contact-icon {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+            
+            .lalibela-background {
+                background-attachment: scroll; /* ለሞባይል ፓራላክስ አይሰራም */
+            }
+            
+            .intro-overlay {
+                top: 10%;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 3rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 1.6rem;
+            }
+            
+            .header {
+                margin-top: 60vh;
+                padding: 2rem 1.5rem;
+            }
+            
+            .content-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 2.3rem;
+            }
+            
+            .photo-counter {
+                padding: 1rem 2rem;
+                font-size: 1.2rem;
+            }
+            
+            .sidebar-toggle {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.8rem 1.2rem;
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* ለስልክ (ሞባይል) */
+        @media (max-width: 576px) {
+            .lalibela-background {
+                filter: blur(2px); /* ለስልክ ያነሰ blur */
+                transform: scale(1.02); /* ያነሰ ማጉላት */
+            }
+            
+            .foreground-image {
+                width: 98%;
+                height: 45vh;
+                border-radius: 12px;
+                border-width: 2px;
+            }
+            
+            .foreground-text h2 {
+                font-size: 1.8rem;
+            }
+            
+            .foreground-text p {
+                font-size: 1rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+                line-height: 1.3;
+            }
+            
+            .subtitle {
+                font-size: 1.3rem;
+            }
+            
+            .description {
+                font-size: 1.1rem;
+                line-height: 1.7;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr; /* ለስልክ አንድ አምድ */
+                gap: 1.2rem;
+            }
+            
+            .gallery-item {
+                height: 220px;
+            }
+            
+            .sidebar-toggle {
+                top: 0.8rem;
+                left: 0.8rem;
+                padding: 0.7rem 1rem;
+                font-size: 1.2rem;
+            }
+            
+            .sidebar-contact {
+                padding: 1rem;
+            }
+            
+            .contact-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .header {
+                margin-top: 55vh;
+                padding: 1.5rem 1rem;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 2.5rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 1.4rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr; /* ለስልክ አንድ አምድ */
+                gap: 1.5rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .feature-icon {
+                font-size: 2.8rem;
+            }
+            
+            .footer {
+                padding: 2.5rem 1rem;
+            }
+            
+            .footer h3 {
+                font-size: 1.8rem;
+            }
+            
+            .social-icons a {
+                width: 50px;
+                height: 50px;
+                font-size: 1.8rem;
+            }
+            
+            .contact-icons-fixed {
+                bottom: 1rem;
+                right: 1rem;
+                gap: 0.8rem;
+            }
+            
+            .fixed-contact-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .fixed-contact-icon::after {
+                display: none; /* ለስልክ አይታይም */
+            }
+            
+            .photo-counter {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.1rem;
+                margin-top: 1rem;
+            }
+            
+            .lightbox-prev {
+                left: 1rem;
+            }
+            
+            .lightbox-next {
+                right: 1rem;
+            }
+            
+            .lightbox-close {
+                top: 1rem;
+                right: 1.5rem;
+            }
+        }
+        
+        /* ለትንሽ ስልክ */
+        @media (max-width: 400px) {
+            .foreground-image {
+                height: 40vh;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 2.2rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .foreground-text h2 {
+                font-size: 1.6rem;
+            }
+            
+            .header {
+                margin-top: 50vh;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+            }
+            
+            .gallery-item {
+                height: 200px;
+            }
+            
+            .sidebar-menu a {
+                padding: 0.8rem 1rem;
+                font-size: 1rem;
+            }
+            
+            .sidebar-info {
+                margin: 1rem;
+                padding: 1rem;
+            }
+        }
+        
+        /* ለበጣም ትንሽ ስልክ */
+        @media (max-width: 350px) {
+            .foreground-image {
+                height: 35vh;
+            }
+            
+            .intro-overlay h1 {
+                font-size: 1.8rem;
+            }
+            
+            .intro-overlay .subtitle {
+                font-size: 1rem;
+            }
+            
+            .header {
+                margin-top: 45vh;
+            }
+            
+            .gallery-item {
+                height: 180px;
+            }
+            
+            .sidebar {
+                width: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ላሊበላ ምስል የጀርባ ገጽታ -->
+    <div class="lalibela-background"></div>
+    
+    <!-- ፊትለፊት የሚታየው ንጹህ ምስል -->
+    <div class="foreground-image">
+        <img src="gettyimages-697529054-612x612.jpg" alt="ላሊበላ">
+        <div class="foreground-text">
+        </div>
+    </div>
+    
+    <!-- በፊትለፊት ምስል ላይ የሚታየው ጽሑፍ -->
+    <div class="intro-overlay">
+        <div class="subtitle"></div>
+    </div>
+    
+    <!-- ምስል አሰባሰብ መቆጣጠሪያ - ለዴስክቶፕ ብቻ -->
+    <div class="photo-controls">
+        <div class="photo-control" id="enhance-photo">
+            <i class="fas fa-search-plus"></i>
+            <span>ምስል ግልጽ አድርግ</span>
+        </div>
+        <div class="photo-control" id="photo-info">
+            <i class="fas fa-info-circle"></i>
+            <span>ስለ ምስሉ</span>
+        </div>
+    </div>
+    
+    <!-- ማዕከላዊ አደራደር -->
+    <div class="main-container">
+        
+        <!-- ማገጃ (Sidebar) -->
+        <aside class="sidebar" id="sidebar">
+            <!-- የመገናኛ አዶዎች -->
+            <div class="sidebar-contact">
+                <a href="tel:0911190162" class="contact-icon contact-phone" title="ጥሪ ይደርሱ">
+                    <i class="fas fa-phone-alt"></i>
+                </a>
+                <a href="sms:0911190162" class="contact-icon contact-message" title="መልዕክት ይላኩ">
+                    <i class="fas fa-comment-alt"></i>
+                </a>
+                <a href="https://t.me/0911190162" target="_blank" class="contact-icon contact-telegram" title="ቴሌግራም">
+                    <i class="fab fa-telegram-plane"></i>
+                </a>
+            </div>
+            
+            <div class="sidebar-header">
+                <h2>ላሊበላ</h2>
+                <p>የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ</p>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <ul>
+                    <li><a href="#home" class="active"><i class="fas fa-home"></i> መነሻ ገጽ</a></li>
+                    <li><a href="#gallery"><i class="fas fa-images"></i> የምስል ማሰሻ </a></li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-info">
+                <h3><i class="fas fa-comments"></i> እንነጋገር</h3>
+                <p>ለተጨማሪ መረጃ በላይ ያሉትን የመገናኛ አዶዎች ይጠቀሙ።</p>
+            </div>
+        </aside>
+        
+        <!-- የግልባጭ አካባቢ -->
+        <div class="overlay" id="overlay"></div>
+        
+        <!-- ዋና ይዘት -->
+        <main class="main-content" id="main-content">
+            <!-- የ sidebar ማዘጋጃ ቁልፍ -->
+            <button class="sidebar-toggle" id="sidebar-toggle">
+                <i class="fas fa-bars"></i> <span class="menu-text">ሜኑ</span>
+            </button>
+            
+            <!-- አማካኝ ክፍል -->
+            <header class="header" id="home">
+                <div class="title-container">
+                    <h1>ላሊበላ የተፈጥሮ ድንጋይ ቅርፃቅርፅ</h1>
+                    <h1>lalibela natural stone sculpture</h1>
+                    <div class="subtitle"></div>
+                    <p class="description">
+                        ላሊበላ በኢትዮጵያ አማራ ክልል ውስጥ የሚገኝ የዓለም ቅርስ ቦታ ነው። በ12ኛው ክፍለ ዘመን ንጉሥ ላሊበላ ትእዛዝ ከአንድ ድንጋይ የተቀረጹ 11 አብያተ ክርስቲያናት ይገኙበታል። እያንዳንዱ ቤተ ክርስቲያን ከአንድ  ከፍተኛ የድንጋይ አለት ተቀርጾ የተገነባ ሲሆን ይህም የሰው ፈጠራ እና የእምነት ምሳሌ ነው። እኛም በዘመናዊ የድንጋይ ስራ አሻራችንን ለማሳረፍ ተነስተናል::
+                    </p>
+                    <div class="photo-counter">
+                        <i class="fas fa-camera"></i><span id="photo-count"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- የላሊበላ ባህሪዎች -->
+            <section class="content-section" id="features">
+                <div class="container">
+                    <h2 class="section-title">ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ</h2>
+                    <div class="features">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            <h3>እኛን ለማግኘት ሜኑ የሚለዉን ይጫኑ</h3>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-cross"></i>
+                            </div>
+                            <h3>በመረጡት ቅርስ እናደርስአለን ይምረጡን</h3>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <h3>የኢትዮጵያ የድንጋይ ስራን አንድ ደረዻ ከፍ ለማድረግ እንሰራለን </h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ግሌሪ ክፍል -->
+            <section class="content-section" id="gallery">
+                <div class="container">
+                    <h2 class="section-title">የምስል ማሰሻ </h2>
+                    <div class="gallery" id="gallery-container">
+                        <!-- ምስሎች በጃቫስክሪፕት ይጨመራሉ -->
+                    </div>
+                </div>
+            </section>
+            <!-- ላይትቦክስ -->
+            <div class="lightbox" id="lightbox">
+                <span class="lightbox-close" id="lightbox-close">&times;</span>
+                <span class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</span>
+                <img class="lightbox-img" id="lightbox-img" src="" alt="">
+                <span class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</span>
+                <div class="counter" id="lightbox-counter"></div>
+            </div>
+
+            <!-- ግርጌ ክፍል -->
+            <footer class="footer" id="contact">
+                <div class="footer-content">
+                    <h3>ላሊበላ - የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ</h3>
+                    <p>ይህ ድር ጣቢያ የተለያዩ የድንጋይ ስራዎች የሚያሳይ ነው። በዚህ ጣቢያ ላይ የተለያዩ የድንጋይ ስራዎች ማዘዝ ይችላሉ</p>
+                    
+                    <div class="social-icons">
+                        <a href="#" title="ፌስቡክ"><i class="fab fa-facebook"></i></a>
+                        <a href="#" title="ትዊተር"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="ኢንስታግራም"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="ዩቲዩብ"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    
+                    <div class="copyright">
+                        &copy; 2023 ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ. ሁሉም መብቶች የተጠበቁ ናቸው.<br>
+                        ስልክ: 0911190162 | ኢሜይል: miki@lalibela-ethiopia.com<br>
+                        ኢትዮጵያ ውብ ናት!
+                    </div>
+                </div>
+            </footer>
+        </main>
+        
+        <!-- የመገናኛ አዶዎች በገጹ ላይ -->
+        <div class="contact-icons-fixed">
+            <a href="tel:0911190162" class="fixed-contact-icon fixed-phone" title="ጥሪ ይደርሱ">
+                <i class="fas fa-phone-alt"></i>
+            </a>
+            <a href="sms:0911190162" class="fixed-contact-icon fixed-message" title="መልዕክት ይላኩ">
+                <i class="fas fa-comment-alt"></i>
+            </a>
+            <a href="https://t.me/0911190162" target="_blank" class="fixed-contact-icon fixed-telegram" title="ቴሌግራም">
+                <i class="fab fa-telegram-plane"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // የምስል ውሂብ - 30 ምስሎች
+        const images = [
+            { 
+                src: "download (1).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download (2).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download (3).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "6305823_MzAwLTEzNS1iNmIzNjk4YzFi.webp", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "6305825_MzAwLTEzNS02ZTEzNGQ1YzZk.webp", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "9759632_MzAwLTQwMC01ZDU0ZGYwMjVi.webp", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download (4).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download (5).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download (6).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "download.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ"
+            },
+            { 
+                src: "images (1).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ"
+            },
+            { 
+                src: "images (2).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "images (4).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ"
+            },
+            { 
+                src: "images (5).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "images (6).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "images (7).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "images (8).jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ"
+            },
+            { 
+                src: "images.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-02-54.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-04-42.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            // 10 ተጨማሪ ምስሎች
+            { 
+                src: "photo_2025-11-29_13-04-58.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-05-11.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-05-23.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-05-34.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-05-51.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-05-59.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-06-04.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-06-16.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-06-24.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            },
+            { 
+                src: "photo_2025-11-29_13-06-30.jpg", 
+                title: "ላሊበላ የተፈጥሮ ድንጋይ ቅርፃ ቅርፅ",
+            }
+        ];
+
+        // Sidebar ቁልፎች
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const overlay = document.getElementById('overlay');
+        const mainContent = document.getElementById('main-content');
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+        const lalibelaBackground = document.querySelector('.lalibela-background');
+        const foregroundImage = document.querySelector('.foreground-image img');
+        const enhancePhotoBtn = document.getElementById('enhance-photo');
+        const photoInfoBtn = document.getElementById('photo-info');
+        const photoCountElement = document.getElementById('photo-count');
+        const menuText = document.querySelector('.menu-text');
+
+        // የምስል ቁጥር ማሳየት
+        photoCountElement.textContent = images.length;
+
+        // ለሞባይል ምስል ግልጽነት መቆጣጠሪያ (ለዴስክቶፕ ብቻ)
+        if (enhancePhotoBtn) {
+            let isEnhanced = false;
+            enhancePhotoBtn.addEventListener('click', function() {
+                if (!isEnhanced) {
+                    // ምስል ግልጽ አድርግ
+                    lalibelaBackground.style.filter = 'brightness(1) contrast(1.2) blur(2px)';
+                    foregroundImage.style.filter = 'brightness(1.1) contrast(1.2)';
+                    enhancePhotoBtn.innerHTML = '<i class="fas fa-search-minus"></i><span>ምስል መደበኛ አድርግ</span>';
+                    showMessage('ምስሉ አሁን የበለጠ ግልጽ ነው!');
+                    isEnhanced = true;
+                } else {
+                    // ምስል ወደ መደበኛው ተመለስ
+                    lalibelaBackground.style.filter = 'brightness(0.9) blur(4px)';
+                    foregroundImage.style.filter = 'brightness(1) contrast(1)';
+                    enhancePhotoBtn.innerHTML = '<i class="fas fa-search-plus"></i><span>ምስል ግልጽ አድርግ</span>';
+                    showMessage('ምስሉ አሁን ግልፅ ነዉ')
+                    isEnhanced = false;
+                }
+            });
+        }
+
+        // ምስል መረጃ ማሳየት
+        if (photoInfoBtn) {
+            photoInfoBtn.addEventListener('click', function() {
+                showMessage('ይህ ምስል የላሊበላን አስደናቂ የአለት ቤተክርስቲያናት ያሳያል። ከ12ኛው ክፍለ ዘመን ጀምሮ የቆየ የኢትዮጵያ ታሪካዊ ቅርስ ነው።');
+            });
+        }
+
+        // መልዕክት ማሳየት ተግባር
+        function showMessage(message) {
+            // የምስል መልዕክት አሰር ፍጠር
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.bottom = '100px';
+            messageDiv.style.right = '30px';
+            messageDiv.style.backgroundColor = 'rgba(44, 24, 16, 0.95)';
+            messageDiv.style.color = '#e6c28c';
+            messageDiv.style.padding = '15px 20px';
+            messageDiv.style.borderRadius = '10px';
+            messageDiv.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.5)';
+            messageDiv.style.zIndex = '1005';
+            messageDiv.style.backdropFilter = 'blur(10px)';
+            messageDiv.style.border = '2px solid rgba(193, 154, 107, 0.5)';
+            messageDiv.style.fontSize = '1rem';
+            messageDiv.style.maxWidth = '300px';
+            messageDiv.style.animation = 'fadeIn 0.3s ease';
+            
+            document.body.appendChild(messageDiv);
+            
+            // መልዕክቱን ከጊዜ በኋላ አጥፋ
+            setTimeout(() => {
+                messageDiv.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        document.body.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Sidebar ለመክፈት/ለመዝጋት
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-open');
+            
+            // የማዘጋጃ ቁልፍ አዶ መለወጥ
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+                if (menuText) menuText.textContent = 'ዝጋ';
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+                if (menuText) menuText.textContent = 'ሜኑ';
+            }
+        }
+
+        // Sidebar ለመዝጋት
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            mainContent.classList.remove('sidebar-open');
+            
+            // ማዘጋጃ ቁልፍ አዶ መለወጥ
+            const icon = sidebarToggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+            if (menuText) menuText.textContent = 'ሜኑ';
+        }
+
+        // ክስተቶችን ማዘጋጀት
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', closeSidebar);
+
+        // Sidebar መድረሻዎች ላይ ጠቅ ሲደረግ
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                // ንቁ አገናኝ ማድረግ
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // ሞባይል ላይ sidebar መዝጋት
+                if (window.innerWidth <= 992) {
+                    closeSidebar();
+                }
+                
+                // ወደ የተገለጸው ክፍል መድረስ
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId !== '#') {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // የሚያየት አዝራር በመጫን ላይ sidebar መዝጋት
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                closeSidebar();
+            }
+        });
+
+        // መገናኛ አዶዎች ክስተቶች
+        const contactIcons = document.querySelectorAll('.contact-icon, .fixed-contact-icon');
+        contactIcons.forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                // በተለየ ትር ውስጥ ቴሌግራም አገናኝ መክፈት
+                if (this.classList.contains('contact-telegram') || this.classList.contains('fixed-telegram')) {
+                    e.preventDefault();
+                    window.open(this.href, '_blank');
+                }
+            });
+        });
+
+        // ግሌሪ ማጠናቀቅ
+        const galleryContainer = document.getElementById('gallery-container');
+        
+        images.forEach((image, index) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.setAttribute('data-index', index);
+            
+            galleryItem.innerHTML = `
+                <img src="${image.src}" alt="${image.title}" class="gallery-img" loading="lazy">
+                <div class="gallery-caption">
+                    <h3>${image.title}</h3>
+                    <p>${image.desc}</p>
+                </div>
+            `;
+            
+            galleryContainer.appendChild(galleryItem);
+            
+            // ጨዋታ ምስል ላይ ጠቅ ሲደረግ
+            galleryItem.addEventListener('click', () => {
+                openLightbox(index);
+            });
+        });
+
+        // ላይትቦክስ ተግባራት
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+        const lightboxPrev = document.getElementById('lightbox-prev');
+        const lightboxNext = document.getElementById('lightbox-next');
+        const lightboxCounter = document.getElementById('lightbox-counter');
+        
+        let currentImageIndex = 0;
+        
+        function openLightbox(index) {
+            currentImageIndex = index;
+            updateLightbox();
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function updateLightbox() {
+            lightboxImg.src = images[currentImageIndex].src;
+            lightboxImg.alt = images[currentImageIndex].title;
+            lightboxCounter.textContent = `${currentImageIndex + 1} / ${images.length}: ${images[currentImageIndex].title}`;
+        }
+        
+        function showPrevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            updateLightbox();
+        }
+        
+        function showNextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            updateLightbox();
+        }
+        
+        // የላይትቦክስ ክንውኖች
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightboxPrev.addEventListener('click', showPrevImage);
+        lightboxNext.addEventListener('click', showNextImage);
+        
+        // በችልታ ወይም Esc ቁልፍ ላይትቦክስ ለመዝጋት
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+        
+        // በቁልፍ ለማሰስ
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevImage();
+            } else if (e.key === 'ArrowRight') {
+                showNextImage();
+            }
+        });
+
+        // በገጽ ላይ ጭነት ሲደረግ ንቁ አገናኝ ማድረግ
+        window.addEventListener('load', function() {
+            const currentHash = window.location.hash || '#home';
+            const activeLink = document.querySelector(`.sidebar-menu a[href="${currentHash}"]`);
+            if (activeLink) {
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                activeLink.classList.add('active');
+            }
+            
+            // መሣሪያ መጠን መለወጥ
+            handleResize();
+            
+            // በገጽ ላይ ጭነት ሲደረግ ምስል ብሩህነት ተጽዕኖ
+            setTimeout(() => {
+                lalibelaBackground.style.transition = 'filter 1s ease';
+                lalibelaBackground.style.filter = 'brightness(0.95) blur(3px)';
+                
+                setTimeout(() => {
+                    lalibelaBackground.style.filter = getBackgroundFilter();
+                }, 1000);
+            }, 500);
+        });
+
+        // መሣሪያ መጠን መለወጥ ላይ የሚሰራ ተግባር
+        function handleResize() {
+            // ለሞባይል የሚስማማ ዲዛይን
+            if (window.innerWidth <= 768) {
+                // ለሞባይል ልዩ አሰራር
+                if (menuText) menuText.style.display = 'none';
+                
+                // ለሞባይል በተሻለ እይታ
+                document.body.style.fontSize = '14px';
+            } else {
+                // ለዴስክቶፕ ልዩ አሰራር
+                if (menuText) menuText.style.display = 'inline';
+                
+                // ለዴስክቶፕ በተሻለ እይታ
+                document.body.style.fontSize = '16px';
+            }
+        }
+
+        // መሣሪያ መጠን መለወጥ ላይ ክስተት
+        window.addEventListener('resize', handleResize);
+
+        // በመሣሪያ መጠን መሰረት የጀርባ ምስል filter መመለስ
+        function getBackgroundFilter() {
+            if (window.innerWidth <= 576) {
+                return 'brightness(0.9) blur(2px)'; // ለስልክ
+            } else if (window.innerWidth <= 768) {
+                return 'brightness(0.9) blur(3px)'; // ለታብሌት
+            } else {
+                return 'brightness(0.85) blur(4px)'; // ለዴስክቶፕ
+            }
+        }
+
+        // ፓራላክስ ተጽዕኖ ለጀርባ ምስል (ለዴስክቶፕ ብቻ)
+        if (window.innerWidth > 768) {
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * 0.3;
+                lalibelaBackground.style.transform = `translate3d(0px, ${rate}px, 0px) scale(1.05)`;
+            });
+        }
+    </script>
+</body>
+</html>
